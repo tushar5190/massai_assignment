@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic To-Do List</title>
+    <style>
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+        li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <input type="text" id="taskInput" placeholder="Enter task">
+    <button id="addTaskButton">Add Task</button>
+    <ul id="taskList"></ul>
+
+    <script>
+        const taskInput = document.getElementById('taskInput');
+        const addTaskButton = document.getElementById('addTaskButton');
+        const taskList = document.getElementById('taskList');
+
+        addTaskButton.addEventListener('click', () => {
+            const taskText = taskInput.value.trim();
+
+            if (taskText !== '') {
+                const listItem = document.createElement('li');
+                listItem.textContent = taskText;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', () => {
+                    listItem.remove();
+                });
+
+                const completeButton = document.createElement('button');
+                completeButton.textContent = 'Complete';
+                completeButton.addEventListener('click', () => {
+                    listItem.classList.toggle('completed');
+                });
+
+                listItem.appendChild(completeButton);
+                listItem.appendChild(deleteButton);
+                taskList.appendChild(listItem);
+
+                taskInput.value = ''; 
+            } else {
+                alert('Please enter a task!');
+            }
+        });
+    </script>
+</body>
+</html>
