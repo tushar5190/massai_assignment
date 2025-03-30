@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Todo List</title>
+    <style>
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+        #taskList li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        #taskList li button {
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <input type="text" id="taskInput" placeholder="Enter task">
+    <button id="addTask">Add Task</button>
+    <input type="text" id="searchInput" placeholder="Search tasks">
+    <ul id="taskList"></ul>
+
+    <script>
+        const taskInput = document.getElementById('taskInput');
+        const addTaskButton = document.getElementById('addTask');
+        const taskList = document.getElementById('taskList');
+        const searchInput = document.getElementById('searchInput');
+
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || []; 
+
+        function renderTasks(filteredTasks = tasks) {
+            taskList.innerHTML = '';
+            filteredTasks.forEach(task => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <input type="checkbox" data-id="${task.id}" ${task.completed ? 'checked' : ''}>
+                    <span ${task.completed ? 'class="completed"' : ''}>${task.text}</span>
+                    <button class="delete" data-id="${task.id}">Delete</button>
+                `;
+                taskList.appendChild(listItem);
+            });
+        }
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        addTaskButton.addEventListener('click', () => {
+            const taskText = taskInput.value.trim();
+            if (taskText) {
+                const newTask = {
+                    id: Date.now(),
+                    text: taskText,
+                    completed: false
+                };
+                tasks.push(newTask);
+                saveTasks();
+                renderTasks();
+                taskInput.value = '';
+            }
+        });
+
+        taskList.addEventListener('click', (event) => {
+            const target = event.target;
+            if (target.classList.contains('delete')) {
+                tasks = tasks.filter(task => task.id !== parseInt(target.dataset.id));
+                saveTasks();
+                renderTasks();
+            } else if (target.type === 'checkbox') {
+                const task = tasks.find(task => task.id === parseInt(target.dataset.id));
+                if (task) {
+                    task.completed = target.checked;
+                    saveTasks();
+                    renderTasks();
+                }
+            }
+        });
+
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            const filteredTasks = tasks.filter(task => task.text.toLowerCase().includes(searchTerm));
+            renderTasks(filteredTasks);
+        });
+
+       
+        renderTasks();
+    </script>
+</body>
+</html>
