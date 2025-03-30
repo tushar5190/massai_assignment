@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Propagation</title>
+    <style>
+        #outerDiv {
+            padding: 20px;
+            background-color: lightgray;
+        }
+        #middleDiv {
+            padding: 20px;
+            background-color: lightblue;
+        }
+        #innerDiv {
+            padding: 20px;
+            background-color: lightgreen;
+        }
+    </style>
+</head>
+<body>
+    <div id="outerDiv">
+        Outer Div
+        <div id="middleDiv">
+            Middle Div
+            <div id="innerDiv">
+                Inner Div
+                <button id="innerButton">Inner Button</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const outerDiv = document.getElementById('outerDiv');
+        const middleDiv = document.getElementById('middleDiv');
+        const innerDiv = document.getElementById('innerDiv');
+        const innerButton = document.getElementById('innerButton');
+
+        outerDiv.addEventListener('click', () => {
+            alert('Outer Div (Capturing)');
+        }, true);
+
+        middleDiv.addEventListener('click', () => {
+            alert('Middle Div (Capturing)');
+        }, true);
+
+        innerDiv.addEventListener('click', () => {
+            alert('Inner Div (Capturing)');
+        }, true);
+
+        innerButton.addEventListener('click', (event) => {
+            alert('Inner Button');
+            event.stopPropagation(); 
+
+        outerDiv.addEventListener('click', () => {
+            alert('Outer Div (Bubbling)');
+        }, false);
+
+        middleDiv.addEventListener('click', () => {
+            alert('Middle Div (Bubbling)');
+        }, false);
+
+        innerDiv.addEventListener('click', () => {
+            alert('Inner Div (Bubbling)');
+        }, false);
+
+        /*
+        Event Propagation Phases:
+
+        1.  Capturing Phase:
+            -   Events propagate from the root of the DOM tree down to the target element.
+            -   Event listeners set with the third argument as 'true' will be executed during this phase.
+
+        2.  Target Phase:
+            -   The event reaches the target element, and event listeners on the target are executed.
+
+        3.  Bubbling Phase:
+            -   Events propagate from the target element up to the root of the DOM tree.
+            -   Event listeners set with the third argument as 'false' (or omitted) will be executed during this phase.
+
+        stopPropagation():
+            -   This method prevents the event from propagating further up the DOM tree (bubbling) or down the DOM tree (capturing).
+            -   In this example, it's used to stop the click event from reaching the parent div elements when the innermost button is clicked.
+        */
+    </script>
+</body>
+</html>
