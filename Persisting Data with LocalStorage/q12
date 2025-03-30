@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Theme Selector</title>
+    <style>
+        body {
+            transition: background-color 0.3s, color 0.3s; 
+        }
+        .light {
+            background-color: white;
+            color: black;
+        }
+        .dark {
+            background-color: #333;
+            color: white;
+        }
+        .blue {
+            background-color: lightblue;
+            color: darkblue;
+        }
+    </style>
+</head>
+<body class="light">
+    <select id="themeSelector">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="blue">Blue</option>
+    </select>
+
+    <script>
+        const themeSelector = document.getElementById('themeSelector');
+        const body = document.body;
+
+        function applyTheme(theme) {
+            body.className = theme;
+            sessionStorage.setItem('selectedTheme', theme);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = sessionStorage.getItem('selectedTheme');
+            if (savedTheme) {
+                applyTheme(savedTheme);
+                themeSelector.value = savedTheme; 
+            }
+        });
+
+        themeSelector.addEventListener('change', () => {
+            applyTheme(themeSelector.value);
+        });
+    </script>
+</body>
+</html>
