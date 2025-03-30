@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Task Manager</title>
+    <style>
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+        #taskList li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        #taskList li button {
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <input type="text" id="taskInput" placeholder="Enter task">
+    <button id="addTask">Add Task</button>
+
+    <div>
+        <button id="allTasks">All Tasks</button>
+        <button id="completedTasks">Completed Tasks</button>
+        <button id="incompleteTasks">Incomplete Tasks</button>
+        <button id="sortTasks">Sort Tasks</button>
+    </div>
+
+    <ul id="taskList"></ul>
+
+    <div id="taskCounts">
+        Total: <span id="totalCount">0</span>,
+        Completed: <span id="completedCount">0</span>,
+        Incomplete: <span id="incompleteCount">0</span>
+    </div>
+
+    <script>
+        const taskInput = document.getElementById('taskInput');
+        const addTaskButton = document.getElementById('addTask');
+        const taskList = document.getElementById('taskList');
+        const allTasksButton = document.getElementById('allTasks');
+        const completedTasksButton = document.getElementById('completedTasks');
+        const incompleteTasksButton = document.getElementById('incompleteTasks');
+        const sortTasksButton = document.getElementById('sortTasks');
+        const totalCount = document.getElementById('totalCount');
+        const completedCount = document.getElementById('completedCount');
+        const incompleteCount = document.getElementById('incompleteCount');
+
+        let tasks = []; 
+
+        function renderTasks(filteredTasks = tasks) {
+            taskList.innerHTML = '';
+            filteredTasks.forEach((task, index) => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <input type="checkbox" data-index="${index}" ${task.completed ? 'checked' : ''}>
+                    <span ${task.completed ? 'class="completed"' : ''}>${task.text}</span>
+                    <button class="delete" data-index="${index}">Delete</button>
+                `;
+                taskList.appendChild(listItem);
+            });
+            updateCounts();
+        }
+
+        function updateCounts() {
+            totalCount.textContent = tasks.length;
+            completedCount.textContent = tasks.filter(task => task.completed).length;
+            incompleteCount.textContent = tasks.filter(task => !task.completed).length;
+        }
+
+        addTaskButton.addEventListener('click', () => {
+            const taskText = taskInput.value.trim();
+            if (taskText) {
+                tasks.push({ text: taskText, completed: false });
+                renderTasks();
+                taskInput.value = '';
+            }
+        });
+
+        taskList.addEventListener('click', (event) => {
+            const target = event.target;
+            if (target.classList.contains('delete')) {
+                tasks.splice(target.dataset.index, 1);
+                renderTasks();
+            } else if (target.type === 'checkbox') {
+                tasks[target.dataset.index].completed = target.checked;
+                renderTasks();
+            }
+        });
+
+        allTasksButton.addEventListener('click', () => renderTasks());
+        completedTasksButton.addEventListener('click', () => renderTasks(tasks.filter(task => task.completed)));
+        incompleteTasksButton.addEventListener('click', () => renderTasks(tasks.filter(task => !task.completed)));
+
+        sortTasksButton.addEventListener('click', () => {
+            tasks.sort((a, b) => a.text.localeCompare(b.text));
+            renderTasks();
+        });
+
+        renderTasks();
+    </script>
+</body>
+</html>
