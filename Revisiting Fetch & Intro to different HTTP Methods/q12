@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create a New Post</title>
+</head>
+<body>
+    <form id="postForm">
+        <label for="title">Title:</label><br>
+        <input type="text" id="title" name="title"><br><br>
+
+        <label for="body">Body:</label><br>
+        <textarea id="body" name="body"></textarea><br><br>
+
+        <button type="submit">Create Post</button>
+    </form>
+
+    <div id="responseArea"></div>
+
+    <script>
+        const postForm = document.getElementById('postForm');
+        const responseArea = document.getElementById('responseArea');
+
+        postForm.addEventListener('submit', (event) => {
+            event.preventDefault(); 
+
+            const title = document.getElementById('title').value.trim();
+            const body = document.getElementById('body').value.trim();
+
+            if (!title || !body) {
+                alert('Please fill in both the title and body.');
+                return;
+            }
+
+            fetch('https://jsonplaceholder.typicode.com/posts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title, body })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                responseArea.innerHTML = `
+                    <h3>New Post Created!</h3>
+                    <p><strong>ID:</strong> ${data.id}</p>
+                    <p><strong>Title:</strong> ${data.title}</p>
+                    <p><strong>Body:</strong> ${data.body}</p>
+                `;
+            })
+            .catch(error => {
+                console.error('Error creating post:', error);
+                responseArea.innerHTML = '<p>Failed to create post.</p>';
+            });
+        });
+    </script>
+</body>
+</html>
