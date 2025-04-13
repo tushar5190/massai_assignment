@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rick and Morty Wiki</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      text-align: center;
+      padding: 1rem;
+      margin: 0;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: scale(1.02);
+    }
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .card-info {
+      padding: 0.5rem 1rem;
+    }
+    .pagination {
+      text-align: center;
+      padding: 1rem;
+    }
+    .pagination button {
+      padding: 0.5rem 1rem;
+      margin: 0 0.5rem;
+    }
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #333;
+      color: white;
+      text-align: center;
+      padding: 0.5rem;
+      font-family: monospace;
+    }
+    @media (max-width: 768px) {
+      .gallery {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 500px) {
+      .gallery {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Rick and Morty Character Gallery</h1>
+<div class="gallery" id="gallery"></div>
+<div class="pagination">
+  <button onclick="changePage(-1)">Previous</button>
+  <button onclick="changePage(1)">Next</button>
+</div>
+
+<footer id="clock">Loading time...</footer>
+
+<script>
+  const gallery = document.getElementById("gallery");
+  let currentPage = 1;
+
+  async function fetchCharacters(page) {
+    gallery.innerHTML = "Loading...";
+    const res = await fetch(`https://rickandmortyapi.com/api/character?page=${page}`);
+    const data = await res.json();
+    displayCharacters(data.results);
+  }
+
+  function displayCharacters(characters) {
+    gallery.innerHTML = "";
+    characters.slice(0, 6).forEach(char => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${char.image}" alt="${char.name}" />
+        <div class="card-info">
+          <h3>${char.name}</h3>
+          <p>Species: ${char.species}</p>
+          <p>Status: ${char.status}</p>
+        </div>
+      `;
+      card.onclick = () => window.open(`https://rickandmortyapi.com/api/character/${char.id}`, "_blank");
+      gallery.appendChild(card);
+    });
+  }
+
+  function changePage(direction) {
+    currentPage += direction;
+    if (currentPage < 1) currentPage = 1;
+    fetchCharacters(currentPage);
+  }
+
+  function updateClock() {
+    const now = new Date();
+    const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const time = now.toLocaleTimeString('en-GB');
+    const day = days[now.getDay()];
+    const date = now.getDate();
+    const month = months[now.getMonth()];
+    const year = now.getFullYear();
+    document.getElementById("clock").textContent = `${time} ${day} ${month} ${date}, ${year}`;
+  }
+
+  setInterval(updateClock, 1000);
+  updateClock();
+  fetchCharacters(currentPage);
+</script>
+
+</body>
+</html>
