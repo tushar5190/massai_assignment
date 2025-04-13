@@ -1,0 +1,23 @@
+
+<div id="productList"></div>
+
+<script>
+  if (localStorage.getItem("loggedIn") !== "true") {
+    window.location.href = "login.html";
+  }
+
+  fetch("https://fakestoreapi.com/products")
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById("productList");
+      data.forEach(product => {
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <h3>${product.title}</h3>
+          <img src="${product.image}" width="100"/>
+          <p>Price: $${product.price}</p>
+        `;
+        container.appendChild(div);
+      });
+    });
+</script>
