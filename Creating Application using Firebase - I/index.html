@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rick and Morty Wiki</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+    header {
+      text-align: center;
+      padding: 1rem;
+      background-color: #222;
+      color: white;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .card {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+      cursor: pointer;
+    }
+    .card:hover {
+      transform: scale(1.03);
+    }
+    .card img {
+      width: 100%;
+      height: auto;
+    }
+    .card-content {
+      padding: 0.5rem 1rem 1rem;
+    }
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .pagination button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: #222;
+      color: white;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+    .detail-page {
+      max-width: 800px;
+      margin: auto;
+      padding: 2rem;
+    }
+    .detail-page img {
+      width: 100%;
+      max-width: 300px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Rick and Morty Character Gallery</h1>
+  </header>
+
+  <main id="main-content">
+    <div class="gallery" id="gallery"></div>
+    <div class="pagination">
+      <button id="prevBtn">Previous</button>
+      <button id="nextBtn">Next</button>
+    </div>
+  </main>
+
+  <footer>
+    <span id="clock">Loading time...</span>
+  </footer>
+
+  <script>
+    const gallery = document.getElementById("gallery");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    let currentPage = 1;
+
+    async function loadCharacters(page = 1) {
+      gallery.innerHTML = "Loading...";
+      const res = await fetch(`https://rickandmortyapi.com/api/character?page=${page}`);
+      const data = await res.json();
+
+      gallery.innerHTML = "";
+      data.results.slice(0, 6).forEach(char => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <img src="${char.image}" alt="${char.name}" />
+          <div class="card-content">
+            <h3>${char.name}</h3>
+            <p>Species: ${char.species}</p>
+            <p>Status: ${char.status}</p>
+          </div>
+        `;
+        card.onclick = () => {
+          const detailWindow = window.open("", "_blank");
+          detailWindow.document.write(`
+            <html>
+              <head>
+                <title>${char.name} - Detail</title>
+                <style>
+                  body { font-family: Arial; padding: 2rem; background: #fefefe; color: #333; }
+                  h1 { text-align: center; }
+                  img { width: 100%; max-width: 300px; display: block; margin: auto; }
+                  .info { max-width: 600px; margin: auto; }
+                  footer { text-align: center; margin-top: 2rem; color: gray; }
+                </style>
+              </head>
+              <body>
+                <h1>${char.name}</h1>
+                <img src="${char.image}" alt="${char.name}">
+                <div class="info">
+                  <p><strong>Status:</strong> ${char.status}</p>
+                  <p><strong>Species:</strong> ${char.species}</p>
+                  <p><strong>Type:</strong> ${char.type || "Unknown"}</p>
+                  <p><strong>Gender:</strong> ${char.gender}</p>
+                  <p><strong>Origin:</strong> ${char.origin.name}</p>
+                  <p><strong>Location:</strong> ${char.location.name}</p>
+                  <p><strong>Episode Count:</strong> ${char.episode.length}</p>
+                </div>
+                <footer>
+                  <span id="detailClock">Loading time...</span>
+                </footer>
+                <script>
+                  function updateClock() {
+                    const now = new Date();
+                    const options = { weekday: 'long', month: 'long', day: 'numeric' };
+                    const time = now.toLocaleTimeString();
+                    const date = now.toLocaleDateString('en-US', options);
+                    document.getElementById("detailClock").innerText = time + " " + date;
+                  }
+                  updateClock();
+                  setInterval(updateClock, 1000);
+                </script>
+              </body>
+            </html>
+          `);
+        };
+        gallery.appendChild(card);
+      });
+
+      prevBtn.disabled = !data.info.prev;
+      nextBtn.disabled = !data.info.next;
+    }
+
+    prevBtn.onclick = () => {
+      if (currentPage > 1) {
+        currentPage--;
+        loadCharacters(currentPage);
+      }
+    };
+    nextBtn.onclick = () => {
+      currentPage++;
+      loadCharacters(currentPage);
+    };
+
+    function updateClock() {
+      const now = new Date();
+      const options = { weekday: 'long', month: 'long', day: 'numeric' };
+      const time = now.toLocaleTimeString();
+      const date = now.toLocaleDateString('en-US', options);
+      document.getElementById("clock").innerText = time + " " + date;
+    }
+
+    loadCharacters();
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>
